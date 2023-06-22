@@ -10,7 +10,6 @@ const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 function FileUploadForm() {
   const [header, setHeader] = useState([]);
   const [cols, setCols] = useState([]);
-  const [state, setState] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
 
