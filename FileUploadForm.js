@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import { OutTable, ExcelRenderer } from "react-excel-renderer";
+import * as XLSX from "xlsx";
 import Hero from "../components/Hero.js";
 
 const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
@@ -8,29 +8,35 @@ const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 ); // Replace with your Supabase credentials
 
 function FileUploadForm() {
-  const [header, setHeader] = useState([]);
-  const [cols, setCols] = useState([]);
+  const [data, setData] = useState([]);
+  const [originalData, setOriginalData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
     setSelectedFile(file);
-    ExcelRenderer(file, (err, response) => {
-      if (err) {
-        console.log(err);
-      } else {
-        setHeader(response.rows[0]);
-        setCols(response.rows);
-      }
-    });
-  }
+
+    const reader = new FileReader();
+    reader.readAsBinaryString(file);
+    reader.onload = (e) => {
+      const data = e.target.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const sheet = workbook.Sheets[sheetName];
+      const parsedData = XLSX.utils.sheet_to_json(sheet, {
+        header: 0,
+        defval: '',
+      });
+      setData(parsedData);
+      setOriginalData(parsedData);
+    };
+  };
 
   const handleUpload = async () => {
-    if (selectedFile) {
-      // Upload the file to Supabase Storage directly into the "excel" bucket
+    if (data.length > 0) {
       const { data, error } = await supabase.storage
-        .from('excel') // Replace with your specific bucket name
+        .from('excel')
         .upload(selectedFile.name, selectedFile, { cacheControl: '3600', upsert: false });
 
       if (error) {
@@ -40,58 +46,86 @@ function FileUploadForm() {
         console.log('File uploaded successfully:', data.Key);
         setUploadStatus('Upload successful');
       }
-
-      
+    } else {
+      console.log('No data available to upload.');
     }
   };
 
+  const handleFillZeros = () => {
+    const updatedData = data.map((row) => {
+      const updatedRow = { ...row };
+      Object.keys(updatedRow).forEach((key) => {
+        if (!updatedRow[key]) {
+          updatedRow[key] = 0;
+        }
+      });
+      return updatedRow;
+    });
+    setData(updatedData);
+  };
+
+  const handleRemoveEmptyRows = () => {
+    const updatedData = data.filter((row) => Object.values(row).some((value) => value !== ''));
+    setData(updatedData);
+  };
+
+  const handleBack = () => {
+    setData(originalData);
+  };
+
   return (
-    <div>
-      <Hero
-        name="hero"
-        title="Uploading of excel file"
-        url="/"
-        next="hide"
-      />
-      <div style={{ margin: "10px auto"  }}>
+    <div style={{ textAlign: 'center' }}>
+      <Hero name="hero" title="Uploading of excel file" url="/" next="hide" />
+      <div style={{ margin: '10px auto' }}>
         <h1>File Upload Form</h1>
-        <input type="file" onChange={handleFileChange} ></input>
+        <input
+          type="file"
+          accept=".xlsx, .xls"
+          onChange={handleFileUpload}
+          style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
+        />
       </div>
       <br />
-      <table
-        style={{
-          borderCollapse: "collapse",
-          margin: "10px auto",
-          border: "1px solid black",
-          width: "100%"
-        }}
-      >
-
-          <tr>
-            {header.map((h, i) => (
-              <th
-                style={{
-                  border: "1px solid black"
-                }}
-                key={i}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-          {cols.slice(1).map((col, i) => (
-            <tr key={i}>
-              {col.map((c, i) => (
-                <td style={{ border: "1px solid black" }} key={i}>
-                  {c}
-                </td>
+      {data.length > 0 && (
+        <>
+          <table
+            className="table"
+            style={{
+              borderCollapse: 'collapse',
+              border: '1px solid black',
+              margin: '0 auto',
+            }}
+          >
+            <thead>
+              <tr>
+                {Object.keys(data[0]).map((key) => (
+                  <th key={key} style={{ border: '1px solid black', padding: '8px' }}>
+                    {key}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value, index) => (
+                    <td key={index} style={{ border: '1px solid black', padding: '8px' }}>
+                      {value}
+                    </td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-      </table>
-      
-      <button onClick={handleUpload}>Upload</button>
-      {uploadStatus && <p>{uploadStatus}</p>}
+            </tbody>
+          </table>
+          <br />
+          <button onClick={handleUpload}>Upload</button>
+          <button onClick={handleFillZeros}>Fill Zeros</button>
+          <button onClick={handleRemoveEmptyRows}>Remove Empty Rows</button>
+          {uploadStatus && <p>{uploadStatus}</p>}
+          <br />
+          <button onClick={handleBack}>Back</button>
+        </>
+      )}
     </div>
   );
 }
