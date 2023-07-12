@@ -107,7 +107,7 @@ function Features() {
   };
 
   const handleRemoveEmptyRows = () => {
-    const updatedData = data.filter((row) => Object.values(row).some((value) => value !== ''));
+    const updatedData = data.filter((row) => !Object.values(row).includes(""));
     setData(updatedData);
   };
 
