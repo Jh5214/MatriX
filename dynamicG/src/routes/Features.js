@@ -77,7 +77,7 @@ function Features() {
     if (data.length > 0) {
       const { data, error } = await supabase.storage
         .from('excel')
-        .upload(selectedFile.name, selectedFile, { cacheControl: '3600', upsert: false });
+        .upload(selectedFile.name, selectedFile, { cacheControl: '3600', upsert: true });
 
       if (error) {
         console.error('Error uploading file:', error);
