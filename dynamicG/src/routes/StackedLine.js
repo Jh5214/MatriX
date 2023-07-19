@@ -28,60 +28,58 @@ export default function StackedLine() {
     const { laa } = useContext(TransferDataContext);
 
     const options = {
+        responsive : true,
         plugins : {
-            title : {
-                display:true,
-                text: 'Stacked Line Chart',},
-                
+            legend : {
+                position: 'top',
             },
-            responsive: true,
-            scales: {
-                x:{
-                    stacked: true,
-                },
-                y: {
-                    stacked : true,
-                },
-                },
-                legend: {
-                    position: "right"
-                },
-            };
+            title : {
+                display: true,
+                text: 'Stacked Line Chart',
+            },
+        },
+    };
 
-    const datas = {
-        labels: laa ? laa : [],
-        datasets: [
-        {
-            label: labels[0],
-            data : categordata[0],
-            backgroundColor: 'rgb(255,99,152)',
-        },
-        {
-            label: labels[1],
-            data: categordata[1],
-            backgroundColor: 'rgb(75,192,192)',
-        },
-        {
-            label: labels[2],
-            data: categordata[2],
-            backgroundColor: 'rgb(53,162,235)',
-        },
-        {
-            label: labels[3],
-            data: categordata[3],
-            backgroundColor: 'orange',
-        },
-        {
-            label: labels[4],
-            data: categordata[4],
-            backgroundColor: 'blue',
-        },
-        {
-            label: labels[5],
-            data: categordata[5],
-            backgroundColor: 'cyan',
-        }
-    ],};
+            const datas = {
+                labels: laa ? laa : [],
+                datasets: [
+                {
+                    label: labels[0],
+                    data : categordata[0],
+                    fill : true,
+                    backgroundColor: 'rgb(255,99,152)',
+                },
+                {
+                    label: labels[1],
+                    data: categordata[1],
+                    fill : true,
+                    backgroundColor: 'rgb(75,192,192)',
+                },
+                {
+                    label: labels[2],
+                    data: categordata[2],
+                    fill : true,
+                    backgroundColor: 'rgb(53,162,235)',
+                },
+                {
+                    label: labels[3],
+                    data: categordata[3],
+                    fill : true,
+                    backgroundColor: 'orange',
+                },
+                {
+                    label: labels[4],
+                    data: categordata[4],
+                    fill : true,
+                    backgroundColor: 'blue',
+                },
+                {
+                    label: labels[5],
+                    data: categordata[5],
+                    fill : true,
+                    backgroundColor: 'cyan',
+                }
+            ],};
 
 
     return (
