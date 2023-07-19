@@ -1,10 +1,11 @@
 import "./Navbar.css";
 import { MenuItems } from "./MenuItems";
 import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Button, IconButton, Typography } from "@mui/material";
 import { supabase } from "./supabase";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { TransferDataContext } from '../routes/context.js';
 
 
 //import { DensitySmallIcon } from '@mui/icons-material/DensitySmallIcon';
@@ -21,7 +22,8 @@ function setStoredName(newName) {
 export default function Navbar() {
   const [state, setState] = useState(false);
 
-  const [check, setCheck] = useState(false);
+  const { setCheck } = useContext(TransferDataContext);
+  const { check } = useContext(TransferDataContext);
 
   const [name, setName] = useState(getStoredName());
 
