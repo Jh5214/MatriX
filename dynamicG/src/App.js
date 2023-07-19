@@ -52,9 +52,9 @@ export default function App() {
         <Route path="/graphs/bubblebarchart" element={<BarChart />} />
         <Route path="/graphs/radarchart" element={<RadarGraph />} />
       </Routes>
-      </TransferDataProvider>
       <Navbar />
       <Footer/>
+      </TransferDataProvider>
     </div>
     </div>
   );
