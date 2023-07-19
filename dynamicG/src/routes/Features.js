@@ -32,10 +32,14 @@ function Features() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
   const [check, setCheck] = useState(false);
-  const ar = [];
-  const stackedV = [];
-  const axis = [];
+  const [ar, setAr] = useState([]);
+  const [stackedV, setStackedV] = useState([]);
+  const [axis, setAxis] = useState([]);
+  
   const no = [];
+  const removeL = [];
+  const removeBasic = [];
+  const remAxis = [];
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
@@ -57,28 +61,52 @@ function Features() {
       setOriginalData(parsedData);
 
       setLabels(Object.keys(parsedData[0]).map((key) => key));
-      parsedData.map((row, index) =>
-        Object.values(row).map((value, index) => ar.push(value))
-      );
-      setDatas(ar);
+      parsedData.forEach((row) => {
+        Object.values(row).forEach((value) => {
+          setAr((prevAr) => [...prevAr, value]);
+        });
+      });
 
-      parsedData.map((row, index) =>
-        Object.values(row).map((value, index) =>
-          index === 0 ? axis.push(value) : no.push(value)
-        )
-      );
-      setLaa(axis);
+      parsedData.forEach((row) => {
+        Object.values(row).forEach((value, index) => {
+          index == 0 ? setAxis((prevAx) => [...prevAx, value]) : no.push(value);
+        })});
+      
+       
 
-      parsedData.map((row, index) =>
-        Object.values(row).map((value, secondIndex) =>
-          stackedV[secondIndex] == null
-            ? (stackedV[secondIndex] = [value])
-            : (stackedV[secondIndex] = stackedV[secondIndex] + value)
-        )
-      );
-      setcategorData(stackedV);
+      parsedData.map((row, index) => (
+        Object.values(row).map((value, secondIndex) => {
+          setStackedV((prevStackedV) => {
+            const updatedStackedV = [...prevStackedV];
+            if (updatedStackedV[secondIndex] == null) {
+              updatedStackedV[secondIndex] = [value];
+            } else {
+              updatedStackedV[secondIndex] = updatedStackedV[secondIndex].concat([value]);
+            }
+            return updatedStackedV;
+          });
+        })
+      ));
     };
   };
+
+  useEffect(() => {
+    if (ar.length > 0) {
+      setDatas(ar);
+    }
+  }, [ar]);
+
+  useEffect(() => {
+    if (axis.length > 0) {
+      setLaa(axis);
+    }
+  }, [axis]);
+
+  useEffect(() => {
+    if (stackedV.length > 0) {
+      setcategorData(stackedV);
+    }
+  }, [stackedV]);
 
   const handleUpload = async () => {
     if (data.length > 0) {
@@ -127,6 +155,25 @@ function Features() {
     const updatedData = data.filter((row) => !Object.values(row).includes(''));
     setData(updatedData);
     setUploadStatus(null); // Reset the upload status
+
+    updatedData.map((row, index) => (Object.values(row).map((value, index) => (
+      index == 0 ? remAxis.push(value) : no[1] = value))));
+    setLaa(remAxis);
+
+    updatedData.map((row, index) => (Object.values(row).map((value, index) => (
+      removeBasic.push(value)))));
+    
+    setDatas(removeBasic)
+
+    updatedData.map((row, index) => (
+      Object.values(row).map((value, secondIndex) => (
+        removeL[secondIndex] == null
+          ? (removeL[secondIndex] = [value])
+          : (removeL[secondIndex] = removeL[secondIndex].concat([value]))
+      ))
+    ));
+
+    setcategorData(removeL);
   };
 
   const handleUpdate = () => {
@@ -136,6 +183,12 @@ function Features() {
 
   const handleBack = () => {
     setData(originalData);
+
+    setDatas(ar);
+
+    setLaa(axis);
+
+    setcategorData(stackedV);
   };
 
   useEffect(() => {
