@@ -10,14 +10,6 @@ const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZGVuZGVibHZ0enZtYnRnbXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NDgyNjIyOSwiZXhwIjoyMDAwNDAyMjI5fQ.B22JM-wZyJlj2Brtx7keClIgkFE_Y_-4SXeQnAp6HGE"
 ); // Replace with your Supabase credentials
 
-function s2ab(s) {
-  const buf = new ArrayBuffer(s.length);
-  const view = new Uint8Array(buf);
-  for (let i = 0; i < s.length; i++) {
-    view[i] = s.charCodeAt(i) & 0xFF;
-  }
-  return buf;
-}
 
 function Features() {
   const { setLineDataa } = useContext(TransferDataContext);
@@ -35,6 +27,7 @@ function Features() {
   const [ar, setAr] = useState([]);
   const [stackedV, setStackedV] = useState([]);
   const [axis, setAxis] = useState([]);
+  const [columnHeaders, setColumnHeaders] = useState([]);
   
   const no = [];
   const removeL = [];
@@ -87,6 +80,9 @@ function Features() {
           });
         })
       ));
+
+      // Extract column headers and set the state
+      setColumnHeaders(Object.keys(parsedData[0]));
     };
   };
 
@@ -191,6 +187,48 @@ function Features() {
     setcategorData(stackedV);
   };
 
+  const handlePredictFutureData = () => {
+    if (data.length >= 2) {
+      const numWeeks = data.length;
+      const numDays = columnHeaders.length - 1; // Exclude the first column (week)
+
+      // Check if the first column contains a string or a number
+      const firstColumnValue = data[numWeeks - 1][columnHeaders[0]];
+      if (typeof firstColumnValue !== 'string') {
+        alert('Cannot predict future data for tables without a string first column (e.g., "week" or "day").');
+        return;
+      }
+
+      // Get the prefix (e.g., "week" or "day") from the uploaded data's first column
+      const prefix = firstColumnValue.split(' ')[0];
+
+      // Get the last day/week number in the uploaded data
+      const lastNumber = parseInt(firstColumnValue.split(' ')[1], 10);
+
+      // Predict future values for each day/week of the next week
+      const nextNumber = lastNumber + 1;
+      const predictedDataPoint = { [columnHeaders[0]]: `${prefix} ${nextNumber}` }; // Increment the number with the prefix
+      const averageChanges = {};
+      for (let i = 1; i <= numDays; i++) {
+        let sumChanges = 0;
+        for (let j = 1; j < numWeeks; j++) {
+          sumChanges += data[j][columnHeaders[i]] - data[j - 1][columnHeaders[i]];
+        }
+        averageChanges[columnHeaders[i]] = sumChanges / (numWeeks - 1);
+      }
+      for (let i = 1; i <= numDays; i++) {
+        const day = columnHeaders[i];
+        const lastWeekValue = data[numWeeks - 1][day];
+        const predictedValue = lastWeekValue + averageChanges[day];
+        predictedDataPoint[day] = predictedValue;
+      }
+
+      setData((prevData) => [...prevData, predictedDataPoint]);
+    } else {
+      alert('Insufficient data to make predictions.');
+    }
+  };
+
   useEffect(() => {
     const subscription = supabase.auth.onAuthStateChange((_event, check) => {
       setCheck(!check);
@@ -214,6 +252,7 @@ function Features() {
         <br />
         {data.length > 0 && (
           <>
+            <h2>Data Table</h2>
             <table
               className="table"
               style={{
@@ -249,6 +288,7 @@ function Features() {
             <br />
             <button onClick={handleUpload}>Upload</button>
             <button onClick={handleUpdate}>Update</button>
+            <button onClick={handlePredictFutureData}>Predict Future Data</button>
             {uploadStatus && <p>{uploadStatus}</p>}
             <br />
             <button onClick={handleBack}>Back</button>
