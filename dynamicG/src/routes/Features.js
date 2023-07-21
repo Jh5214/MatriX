@@ -18,12 +18,13 @@ function Features() {
   const { setTitle } = useContext(TransferDataContext);
   const { setcategorData } = useContext(TransferDataContext);
   const { setLaa } = useContext(TransferDataContext);
+  const { check } = useContext(TransferDataContext);
+  const { setCheck } = useContext(TransferDataContext);
 
   const [data, setData] = useState([]);
   const [originalData, setOriginalData] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState(null);
-  const [check, setCheck] = useState(false);
   const [ar, setAr] = useState([]);
   const [stackedV, setStackedV] = useState([]);
   const [axis, setAxis] = useState([]);
@@ -54,6 +55,7 @@ function Features() {
       setOriginalData(parsedData);
 
       setLabels(Object.keys(parsedData[0]).map((key) => key));
+
       parsedData.forEach((row) => {
         Object.values(row).forEach((value) => {
           setAr((prevAr) => [...prevAr, value]);
@@ -87,21 +89,15 @@ function Features() {
   };
 
   useEffect(() => {
-    if (ar.length > 0) {
       setDatas(ar);
-    }
   }, [ar]);
 
   useEffect(() => {
-    if (axis.length > 0) {
       setLaa(axis);
-    }
   }, [axis]);
 
   useEffect(() => {
-    if (stackedV.length > 0) {
       setcategorData(stackedV);
-    }
   }, [stackedV]);
 
   const handleUpload = async () => {
@@ -208,6 +204,7 @@ function Features() {
       // Predict future values for each day/week of the next week
       const nextNumber = lastNumber + 1;
       const predictedDataPoint = { [columnHeaders[0]]: `${prefix} ${nextNumber}` }; // Increment the number with the prefix
+      setAxis((prevAx) => [...prevAx, predictedDataPoint[columnHeaders[0]]]);
       const averageChanges = {};
       for (let i = 1; i <= numDays; i++) {
         let sumChanges = 0;
@@ -221,6 +218,16 @@ function Features() {
         const lastWeekValue = data[numWeeks - 1][day];
         const predictedValue = lastWeekValue + averageChanges[day];
         predictedDataPoint[day] = predictedValue;
+        
+        setStackedV((prevStackedV) => {
+              const updatedStackedV = [...prevStackedV];
+              if (updatedStackedV[i] == null) {
+                updatedStackedV[i] = [predictedValue];
+              } else {
+                updatedStackedV[i] = updatedStackedV[i].concat([predictedValue]);
+              }
+              return updatedStackedV;
+            });
       }
 
       setData((prevData) => [...prevData, predictedDataPoint]);
@@ -286,8 +293,13 @@ function Features() {
             <button onClick={handleFillZeros}>Fill Zeros</button>
             <button onClick={handleRemoveEmptyRows}>Remove Empty Rows</button>
             <br />
+            {check ? 
+            <></> :
+            <>
             <button onClick={handleUpload}>Upload</button>
             <button onClick={handleUpdate}>Update</button>
+            </>
+            }
             <button onClick={handlePredictFutureData}>Predict Future Data</button>
             {uploadStatus && <p>{uploadStatus}</p>}
             <br />
