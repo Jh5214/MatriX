@@ -15,13 +15,9 @@ export const MenuItems = [
     name: "nav-links"
   },
   {
-    title: "Templates",
-    url: "/templates",
-    name: "nav-links"
-  },
-  {
     title: "Learn",
     url: "/learn",
     name: "nav-links"
   }
 ];
+
