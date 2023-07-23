@@ -92,6 +92,15 @@ export default function StackedBar() {
             url="/"
             next="hide"
         />
+        <div
+        className="chart-container"
+        style={{
+          height: "70vh",
+          position: "relative",
+          marginBottom: "1%",
+          padding: "1%",
+        }}
+      >
         <button style = {{position: "relative", textAlign : 'center', margin: '10px auto' }} onClick={downloadChartAsImage}>Download Chart</button>
         <div style={{height:"70vh",position:"relative", marginBottom:"1%", padding:"1%"}}>
         <Bar options = {options} data = {datas} />
