@@ -46,37 +46,35 @@ export default function StackedLine() {
                 {
                     label: labels[0],
                     data : categordata[0],
-                    fill : true,
                     backgroundColor: 'rgb(255,99,152)',
                 },
                 {
                     label: labels[1],
                     data: categordata[1],
-                    fill : true,
                     backgroundColor: 'rgb(75,192,192)',
                 },
                 {
                     label: labels[2],
                     data: categordata[2],
-                    fill : true,
+                    
                     backgroundColor: 'rgb(53,162,235)',
                 },
                 {
                     label: labels[3],
                     data: categordata[3],
-                    fill : true,
+                    
                     backgroundColor: 'orange',
                 },
                 {
                     label: labels[4],
                     data: categordata[4],
-                    fill : true,
+                    
                     backgroundColor: 'blue',
                 },
                 {
                     label: labels[5],
                     data: categordata[5],
-                    fill : true,
+                    
                     backgroundColor: 'cyan',
                 }
             ],};
