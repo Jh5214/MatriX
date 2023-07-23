@@ -5,7 +5,6 @@ import { createClient } from '@supabase/supabase-js';
 import * as XLSX from "xlsx";
 import { Link } from "react-router-dom";
 import { TransferDataContext } from './context';
-import { useUser, useSupabaseClient} from "@supabase/auth-helpers-react";
 import {Button, Row, Col} from 'react-bootstrap';
 
 const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
@@ -37,8 +36,7 @@ function Features() {
   const [originAxis, setoriginAxis] = useState([]);
 
   const [userFiles, setUserFiles] = useState([]);
-
-  const user = useUser();
+  
   const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
   
   const no = [];
@@ -82,8 +80,6 @@ function Features() {
           }
         })});
       
-       
-
       parsedData.map((row, index) => (
         Object.values(row).map((value, secondIndex) => {
           setStackedV((prevStackedV) => {
@@ -129,18 +125,7 @@ function Features() {
   useEffect(() => {
       setcategorData(stackedV);
   }, [stackedV]);
-
-  useEffect(() => {
-    if (user) {
-      getPrevFile();
-    }
-}, [user]);
-
-    useEffect(() => {
-      if (user) {
-        getPrevFile();
-      }
-    }, [userFiles]);
+  
 
   const handleUpload = async () => {
     if (data.length > 0) {
@@ -154,7 +139,7 @@ function Features() {
 
       const { data: uploadedData, error } = await supabase.storage
         .from("excel")
-        .upload(user.id + "/" + fileName, fileData, {
+        .upload( fileName, fileData, {
           cacheControl: "3600",
           upsert: true,
         });
@@ -165,7 +150,6 @@ function Features() {
       } else {
         console.log("File uploaded successfully:", uploadedData.Key);
         setUploadStatus('Upload successful');
-        getPrevFile();
       }
     } else {
       console.log('No data available to upload.');
@@ -279,36 +263,6 @@ function Features() {
     }
   };
 
-  const getPrevFile = async () => {
-    const { filedata, error } = await supabase
-        .storage
-        .from('excel')
-        .list(user?.id + "/", {
-          limit: 100,
-          offset: 0,
-          sortBy: { column: 'name', order: 'asc' },
-        });
-        if (data != null ) {
-          setUserFiles(filedata);
-        } else {
-          console.error("Error getting file:", error);
-        }
-  };
-
-  const deleteFile = async (fileName) => {
-      const {error} = await supabase
-      .storage
-      .from('excel')
-      .remove([user.id + "/" + fileName] )
-
-      if (error) {
-        alert(error);
-      } else {
-        getPrevFile();
-      }
-  }
-
-
   useEffect(() => {
     const subscription = supabase.auth.onAuthStateChange((_event, check) => {
       setCheck(!check);
@@ -321,29 +275,6 @@ function Features() {
       <div style={{ textAlign: 'center' }}>
         <Hero name="hero" title="Uploading of excel file" url="/" next="hide" />
         <div style={{ margin: '10px auto' }}>
-          
-          {user === null ?
-          <></>
-          :
-          <>
-          <h1> Existing Files</h1>
-          <p>Current user: {user.email}</p>
-          <>
-          <h1>Your Files</h1>
-          <Row xs = {1} md = {3} className = 'g-4'>
-            {userFiles?.map((file) => {
-              return (
-                <Col key = {CDNURL + user.id + "/" + file.name}>
-                  <Button variant = 'top' src  = {CDNURL + user.id + '/' + file.name}>
-                    {file.name}
-                  </Button>
-                  <Button variant = 'danger' onClick={() => deleteFile(file.name)}>
-                    Delete File
-                  </Button>
-                </Col>
-              )
-            })}
-          </Row>
           </>
           <p>Use the Choose File button below to upload an file to your storage</p>
           </>
