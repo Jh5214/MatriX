@@ -35,7 +35,7 @@ function Features() {
   const [originStackedV, setOriginStackedV] = useState([]);
   const [originAxis, setoriginAxis] = useState([]);
   const [fileUserStatus, setFileUserStatus] = useState(null);
-  
+
   const no = [];
   const removeL = [];
   const removeBasic = [];
@@ -76,8 +76,6 @@ function Features() {
           setoriginAxis((prevAx) => [...prevAx, value]);
           }
         })});
-      
-       
 
       parsedData.map((row, index) => (
         Object.values(row).map((value, secondIndex) => {
@@ -89,7 +87,8 @@ function Features() {
               updatedStackedV[secondIndex] = updatedStackedV[secondIndex].concat([value]);
             }
             return updatedStackedV;
-          });
+          })
+          ;
         })
       ));
 
@@ -131,6 +130,10 @@ function Features() {
       setcategorData(stackedV);
   }, [stackedV]);
 
+
+  useEffect(() => {
+  }, [userFiles]);
+
   const handleUpload = async () => {
     if (data.length > 0) {
       const formData = new FormData();
@@ -157,6 +160,30 @@ function Features() {
       }
     } else {
       console.log('No data available to upload.');
+    }
+  };
+
+  const getPrevFile = async () => {
+    try {
+      
+      const { data, error } = await supabase
+      .storage
+      .createBucket(user, {
+        public: false,
+        fileSizeLimit: 1024
+      });
+      const { getdata, geterror } = await supabase
+        .storage
+        .from(user)
+        .list({
+          limit: 100,
+          offset: 0,
+          sortBy: { column: 'name', order: 'asc' },
+        });
+
+        setUserFiles(getdata);
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -329,6 +356,7 @@ function Features() {
             <>
             <button onClick={handleUpload}>Upload</button>
             <button onClick={handleUpdate}>Update</button>
+            <button onClick={getPrevFile}>Get all my Files</button>
             </>
             }
             <button onClick={handlePredictFutureData}>Predict Future Data</button>
@@ -338,6 +366,17 @@ function Features() {
             <Link to="/graphs">
               <button>Get Graph</button>
             </Link>
+
+            {!check & userFiles.length() > 0 && (
+                <ul>
+                  {userFiles.map((file) => (
+                    <li key={file.id}>
+                      <a href={file.url}>{file.name}</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
             <TransferDataContext.Provider
               value={{ setLineDataa, setLabels, setDatas, setTitle }}
             ></TransferDataContext.Provider>
