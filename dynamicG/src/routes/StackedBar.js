@@ -11,6 +11,8 @@ import { Bar } from 'react-chartjs-2';
 import { TransferDataContext } from './context';
 import { useContext } from 'react';
 import Hero from "../components/Hero.js";
+import { saveAs } from "file-saver";
+import html2canvas from "html2canvas";
 
 ChartJS.register(
     CategoryScale,
@@ -44,41 +46,42 @@ export default function StackedBar() {
                 },
                 },
             };
+    function downloadChartAsImage() {
+                // Get the chart container element
+                const chartContainer = document.querySelector(".chart-container");
+            
+                // Use html2canvas to convert the chart container to an image
+                html2canvas(chartContainer).then((canvas) => {
+                  // Convert canvas to blob
+                  canvas.toBlob(function (blob) {
+                    // Use file-saver to save the blob as an image file
+                    saveAs(blob, "Area_chart.png");
+                  });
+                });
+              }    
 
+
+    const datasets = labels.map((label, index) => ({
+                label: label,
+                data: categordata[index],
+                fill: true,
+                backgroundColor: getRandomColor(),
+              }));
+            
     const datas = {
-        labels: laa ? laa : [],
-        datasets: [
-        {
-            label: labels[0],
-            data : categordata[0],
-            backgroundColor: 'rgb(255,99,152)',
-        },
-        {
-            label: labels[1],
-            data: categordata[1],
-            backgroundColor: 'rgb(75,192,192)',
-        },
-        {
-            label: labels[2],
-            data: categordata[2],
-            backgroundColor: 'rgb(53,162,235)',
-        },
-        {
-            label: labels[3],
-            data: categordata[3],
-            backgroundColor: 'orange',
-        },
-        {
-            label: labels[4],
-            data: categordata[4],
-            backgroundColor: 'blue',
-        },
-        {
-            label: labels[5],
-            data: categordata[5],
-            backgroundColor: 'cyan',
-        }
-    ],};
+                labels: laa ? laa : [],
+                datasets: datasets,
+              };
+    
+    function getRandomColor() {
+                const letters = "0123456789ABCDEF";
+                let color = "#";
+                for (let i = 0; i < 6; i++) {
+                  color += letters[Math.floor(Math.random() * 16)];
+                }
+                return color;
+              }
+            
     
     return (
         <>
@@ -89,6 +92,7 @@ export default function StackedBar() {
             url="/"
             next="hide"
         />
+        <button style = {{position: "relative", textAlign : 'center', margin: '10px auto' }} onClick={downloadChartAsImage}>Download Chart</button>
         <div style={{height:"70vh",position:"relative", marginBottom:"1%", padding:"1%"}}>
         <Bar options = {options} data = {datas} />
         </div>
