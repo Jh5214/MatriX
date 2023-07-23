@@ -76,6 +76,8 @@ function Features() {
           setoriginAxis((prevAx) => [...prevAx, value]);
           }
         })});
+      
+       
 
       parsedData.map((row, index) => (
         Object.values(row).map((value, secondIndex) => {
@@ -87,8 +89,7 @@ function Features() {
               updatedStackedV[secondIndex] = updatedStackedV[secondIndex].concat([value]);
             }
             return updatedStackedV;
-          })
-          ;
+          });
         })
       ));
 
@@ -117,14 +118,14 @@ function Features() {
   }, [ar]);
 
   useEffect(() => {
+      setLaa(axis);
+  }, [axis]);
+
+  useEffect(() => {
     if (!check) {
     setUser(supabase.auth.getUser());
     }
   }, [user]);
-
-  useEffect(() => {
-      setLaa(axis);
-  }, [axis]);
 
   useEffect(() => {
       setcategorData(stackedV);
@@ -152,38 +153,10 @@ function Features() {
         setUploadStatus('Upload failed: ' + error.message);
       } else {
         console.log("File uploaded successfully:", uploadedData.Key);
-
-
-        const { fileError } = await supabase
-          .from('usersFile')
-          .insert({ name: selectedFile.name, url: data.Key, uploaded_by: user.id});
-
-          if (fileError) {
-            console.error('Error associating file with user:', fileError);
-          } else {
-            console.log('File associated with user:' );
-            setFileUserStatus("file successfully associated with user");
-            fetchUserFiles(user.id);
-          }
-
         setUploadStatus('Upload successful');
       }
     } else {
       console.log('No data available to upload.');
-    }
-  };
-
-  const fetchUserFiles = async (userId) => {
-    const { data: userFilesData, error: userFilesError } = await supabase
-      .from('usersFile')
-      .select()
-      .eq('uploaded_by', userId);
-  
-    if (userFilesError) {
-      console.error('Error fetching user files:', userFilesError);
-    } else {
-      console.log('User files:', userFilesData);
-      setUserFiles(userFilesData); // Store the fetched user files
     }
   };
 
@@ -294,6 +267,13 @@ function Features() {
     }
   };
 
+  useEffect(() => {
+    const subscription = supabase.auth.onAuthStateChange((_event, check) => {
+      setCheck(!check);
+    });
+    return () => check;
+  }, []);
+
   return (
     <>
       <div style={{ textAlign: 'center' }}>
@@ -344,17 +324,6 @@ function Features() {
             <button onClick={handleFillZeros}>Fill Zeros</button>
             <button onClick={handleRemoveEmptyRows}>Remove Empty Rows</button>
             <br />
-            
-            {userFiles.length > 0 && (
-              <ul>
-                {userFiles.map((file) => (
-                  <li key={file.id}>
-                    <a href={file.url}>{file.name}</a>
-                  </li>
-                ))}
-              </ul>
-            )}
-
             {check ? 
             <></> :
             <>
@@ -364,7 +333,6 @@ function Features() {
             }
             <button onClick={handlePredictFutureData}>Predict Future Data</button>
             {uploadStatus && <p>{uploadStatus}</p>}
-            {fileUserStatus && <p>{fileUserStatus}</p>}
             <br />
             <button onClick={handleBack}>Back</button>
             <Link to="/graphs">
