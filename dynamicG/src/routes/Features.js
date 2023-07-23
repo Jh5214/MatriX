@@ -29,6 +29,10 @@ function Features() {
   const [stackedV, setStackedV] = useState([]);
   const [axis, setAxis] = useState([]);
   const [columnHeaders, setColumnHeaders] = useState([]);
+
+  const [originAr, setOriginAr] = useState([]);
+  const [originStackedV, setOriginStackedV] = useState([]);
+  const [originAxis, setoriginAxis] = useState([]);
   
   const no = [];
   const removeL = [];
@@ -59,12 +63,16 @@ function Features() {
       parsedData.forEach((row) => {
         Object.values(row).forEach((value) => {
           setAr((prevAr) => [...prevAr, value]);
+          setOriginAr((prevOAr) => [...prevOAr, value]);
         });
       });
 
       parsedData.forEach((row) => {
         Object.values(row).forEach((value, index) => {
-          index == 0 ? setAxis((prevAx) => [...prevAx, value]) : no.push(value);
+          if (index == 0) {
+            setAxis((prevAx) => [...prevAx, value]);
+          setoriginAxis((prevAx) => [...prevAx, value]);
+          }
         })});
       
        
@@ -80,6 +88,21 @@ function Features() {
             }
             return updatedStackedV;
           });
+        })
+      ));
+
+      parsedData.map((row, index) => (
+        Object.values(row).map((value, secondIndex) => {
+          setOriginStackedV((prevOStackedV) => {
+            const updatedStackedV = [...prevOStackedV];
+            if (updatedStackedV[secondIndex] == null) {
+              updatedStackedV[secondIndex] = [value];
+            } else {
+              updatedStackedV[secondIndex] = updatedStackedV[secondIndex].concat([value]);
+            }
+            return updatedStackedV;
+          })
+          ;
         })
       ));
 
@@ -176,11 +199,11 @@ function Features() {
   const handleBack = () => {
     setData(originalData);
 
-    setDatas(ar);
+    setDatas(originAr);
 
-    setLaa(axis);
+    setLaa(originAxis);
 
-    setcategorData(stackedV);
+    setcategorData(originStackedV);
   };
 
   const handlePredictFutureData = () => {
