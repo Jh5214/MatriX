@@ -323,22 +323,22 @@ function Features() {
           <h1> Existing Files</h1>
           <p>Current user: {user.email}</p>
           <>
-          <Row xs = {1} md = {3} className = 'g-4'>
+          <Row xs = {1} md = {3} className = 'g-4' style = {{justifyContent: 'space-between', paddingTop: '10px', paddingBottom: '10px'}}>
             {userFiles?.map((file) => {
               return (
-                <Col key = {CDNURL + user.id + "/" + file.name}>
+                <>
                   <Button variant="contained" onClick={() => window.open(CDNURL + user.id + '/' + file.name, '_blank')}>
                     {file.name}
                   </Button>
                   <Button color="secondary" onClick={() => deleteFile(file.name)}>
                     Delete File
                   </Button>
-                </Col>
+                </>
               )
             })}
           </Row>
           </>
-          <p>Use the Choose File button below to upload an file to your storage</p>
+          <h3 style= {{paddingBottom: '10px'}}>Use the Choose File button below to upload an file to your storage</h3>
           </>
         }
         <h1>File Upload Form</h1>
