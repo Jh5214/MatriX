@@ -6,14 +6,13 @@ import * as XLSX from "xlsx";
 import { Link } from "react-router-dom";
 import { TransferDataContext } from './context';
 import { useUser, useSupabaseClient} from "@supabase/auth-helpers-react";
-import {Button, Row, Col} from 'react-bootstrap';
-
+import {Row, Col} from 'react-bootstrap';
+import { Button } from "@mui/material";
 
 const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZGVuZGVibHZ0enZtYnRnbXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NDgyNjIyOSwiZXhwIjoyMDAwNDAyMjI5fQ.B22JM-wZyJlj2Brtx7keClIgkFE_Y_-4SXeQnAp6HGE"
 ); // Replace with your Supabase credentials
 
-const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
 
 function Features() {
   const { setLineDataa } = useContext(TransferDataContext);
@@ -41,6 +40,7 @@ function Features() {
   const [userFiles, setUserFiles] = useState([]);
 
   const user = useUser();
+  const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
   
   const no = [];
   const removeL = [];
@@ -138,7 +138,7 @@ function Features() {
 }, [user]);
 
     useEffect(() => {
-      if (userFiles) {
+      if (user) {
         getPrevFile();
       }
     }, [userFiles]);
@@ -222,8 +222,10 @@ function Features() {
 
     setDatas(originAr);
     setAr(originAr);
+    
     setLaa(originAxis);
     setAxis(originAxis);
+    
     setcategorData(originStackedV);
     setStackedV(originStackedV);
   };
@@ -282,16 +284,13 @@ function Features() {
   };
 
   const getPrevFile = async () => {
-    const { filedata, error } = await supabase
+    const { data : filedata, error } = await supabase
         .storage
-        .from("excel")
-        .list( user?.id + "/", {
+        .from('excel')
+        .list(user?.id + "/", {
           sortBy: { column: 'name', order: 'asc' },
         });
-
-        console.log('file data is :', filedata);
-        console.log('file data is :', filedata);
-        if (filedata != null ) {
+        if (data != null ) {
           setUserFiles(filedata);
         } else {
           console.error("Error getting file:", error);
@@ -301,7 +300,7 @@ function Features() {
   const deleteFile = async (fileName) => {
       const {error} = await supabase
       .storage
-      .from("excel")
+      .from('excel')
       .remove([user.id + "/" + fileName] )
 
       if (error) {
@@ -328,10 +327,10 @@ function Features() {
             {userFiles?.map((file) => {
               return (
                 <Col key = {CDNURL + user.id + "/" + file.name}>
-                  <Button variant = 'top' src  = {CDNURL + user.id + '/' + file.name}>
+                  <Button variant="contained" onClick={() => window.open(CDNURL + user.id + '/' + file.name, '_blank')}>
                     {file.name}
                   </Button>
-                  <Button variant = 'danger' onClick={() => deleteFile(file.name)}>
+                  <Button color="secondary" onClick={() => deleteFile(file.name)}>
                     Delete File
                   </Button>
                 </Col>
@@ -412,4 +411,3 @@ function Features() {
 }
 
 export default Features;
-
