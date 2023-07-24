@@ -8,10 +8,12 @@ import { TransferDataContext } from './context';
 import { useUser, useSupabaseClient} from "@supabase/auth-helpers-react";
 import {Button, Row, Col} from 'react-bootstrap';
 
+
 const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZGVuZGVibHZ0enZtYnRnbXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NDgyNjIyOSwiZXhwIjoyMDAwNDAyMjI5fQ.B22JM-wZyJlj2Brtx7keClIgkFE_Y_-4SXeQnAp6HGE"
 ); // Replace with your Supabase credentials
 
+const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
 
 function Features() {
   const { setLineDataa } = useContext(TransferDataContext);
@@ -39,7 +41,6 @@ function Features() {
   const [userFiles, setUserFiles] = useState([]);
 
   const user = useUser();
-  const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
   
   const no = [];
   const removeL = [];
@@ -137,7 +138,7 @@ function Features() {
 }, [user]);
 
     useEffect(() => {
-      if (user) {
+      if (userFiles) {
         getPrevFile();
       }
     }, [userFiles]);
@@ -220,10 +221,11 @@ function Features() {
     setData(originalData);
 
     setDatas(originAr);
-
+    setAr(originAr);
     setLaa(originAxis);
-
+    setAxis(originAxis);
     setcategorData(originStackedV);
+    setStackedV(originStackedV);
   };
 
   const handlePredictFutureData = () => {
@@ -282,13 +284,14 @@ function Features() {
   const getPrevFile = async () => {
     const { filedata, error } = await supabase
         .storage
-        .from('excel')
-        .list(user?.id + "/", {
-          limit: 100,
-          offset: 0,
+        .from("excel")
+        .list( user?.id + "/", {
           sortBy: { column: 'name', order: 'asc' },
         });
-        if (data != null ) {
+
+        console.log('file data is :', filedata);
+        console.log('file data is :', filedata);
+        if (filedata != null ) {
           setUserFiles(filedata);
         } else {
           console.error("Error getting file:", error);
@@ -298,7 +301,7 @@ function Features() {
   const deleteFile = async (fileName) => {
       const {error} = await supabase
       .storage
-      .from('excel')
+      .from("excel")
       .remove([user.id + "/" + fileName] )
 
       if (error) {
@@ -321,7 +324,6 @@ function Features() {
           <h1> Existing Files</h1>
           <p>Current user: {user.email}</p>
           <>
-          <h1>Your Files</h1>
           <Row xs = {1} md = {3} className = 'g-4'>
             {userFiles?.map((file) => {
               return (
@@ -390,7 +392,6 @@ function Features() {
             <>
             <button onClick={handleUpload}>Upload</button>
             <button onClick={handleUpdate}>Update</button>
-            <button onClick={getPrevFile}>get all files uploaded</button>
             </>
             }
             <button onClick={handlePredictFutureData}>Predict Future Data</button>
@@ -411,3 +412,4 @@ function Features() {
 }
 
 export default Features;
+
