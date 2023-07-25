@@ -328,7 +328,7 @@ function Features() {
   }
 
   const filesButton = async ( url, fileN ) => {
-    //window.open(url, '_blank');
+    window.open(url, '_blank');
     const { data: filedata, error } = await supabase.storage
       .from("excel")
       .download(user?.id + "/" + fileN)
