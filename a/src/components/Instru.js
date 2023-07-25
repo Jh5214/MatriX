@@ -25,8 +25,8 @@ export default function Instru() {
                             </p>
                         </div>
                             <div className = "image">
-                            <img alt= {instru.heading} src = {instru.img}/>
-                            <img alt = {instru.heading} src = {instru.img}/>
+                            <img alt= {instru.heading} src = {instru.img} style={{objectFit : 'contain'}}/>
+                            <img alt = {instru.heading} src = {instru.img1} style={{objectFit : 'contain'}}/>
                             </div>
                         
                 </div>
