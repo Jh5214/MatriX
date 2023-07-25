@@ -41,7 +41,8 @@ function Features() {
 
   const user = useUser();
   const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
-  
+  const [downloadedFile, setDownloadedFile] = useState(null);
+
   const no = [];
   const removeL = [];
   const removeBasic = [];
@@ -142,6 +143,13 @@ function Features() {
         getPrevFile();
       }
     }, [userFiles]);
+
+
+    useEffect(() => {
+      if (downloadedFile) {
+        console.log("New File downloaded :", downloadedFile);
+      }
+  }, [downloadedFile]);
 
   const handleUpload = async () => {
     if (data.length > 0) {
@@ -309,6 +317,19 @@ function Features() {
         getPrevFile();
       }
   }
+
+  const filesButton = async ( url, fileN ) => {
+    window.open(url, '_blank');
+    const { data: filedata, error } = await supabase.storage
+      .from("excel")
+      .download(user?.id + "/" + fileN)
+
+      if (error) {
+        console.error("Error downloading file:", error);
+      } else {
+        setDownloadedFile(data); // Store the downloaded file in state
+      }
+  }
   
   return (
     <>
@@ -327,7 +348,7 @@ function Features() {
             {userFiles?.map((file) => {
               return (
                 <>
-                  <Button variant="contained" onClick={() => window.open(CDNURL + user.id + '/' + file.name, '_blank')}>
+                  <Button variant="contained" onClick={() => filesButton(CDNURL + user.id + '/' + file.name, file.name)}>
                     {file.name}
                   </Button>
                   <Button color="secondary" onClick={() => deleteFile(file.name)}>
