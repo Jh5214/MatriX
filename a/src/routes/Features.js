@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 import { TransferDataContext } from './context';
 import { useUser, useSupabaseClient} from "@supabase/auth-helpers-react";
 import {Row, Col} from 'react-bootstrap';
-import { Button, IconButton } from "@mui/material";
+import { Button, IconButton  } from "@mui/material";
 import { CloudUpload, BarChart } from "@mui/icons-material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
@@ -43,14 +43,22 @@ function Features() {
 
   const user = useUser();
   const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
-  
+  const [downloadedFile, setDownloadedFile] = useState(null);
+
   const no = [];
   const removeL = [];
   const removeBasic = [];
   const remAxis = [];
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
+  const usingUpload = (e) => {
+    setAr([]);
+    setAxis([]);
+    setStackedV([]);
+    handleFileUpload(e.target.files[0]);
+  }
+
+  const handleFileUpload = ( file ) => {
+
     setSelectedFile(file);
 
     const reader = new FileReader();
@@ -144,6 +152,13 @@ function Features() {
         getPrevFile();
       }
     }, [userFiles]);
+
+
+    useEffect(() => {
+      if (downloadedFile) {
+        console.log("New File downloaded :", downloadedFile);
+      }
+  }, [downloadedFile]);
 
   const handleUpload = async () => {
     if (data.length > 0) {
@@ -312,6 +327,22 @@ function Features() {
       }
   }
 
+  const filesButton = async ( url, fileN ) => {
+    //window.open(url, '_blank');
+    const { data: filedata, error } = await supabase.storage
+      .from("excel")
+      .download(user?.id + "/" + fileN)
+
+      console.log("data is ", data);
+
+      if (error) {
+        console.error("Error downloading file:", error);
+      } else {
+        setDownloadedFile(filedata); // Store the downloaded file in state
+        handleFileUpload(filedata);
+      }
+  }
+
   const buttonStyle = {
     backgroundColor: "#4CAF50",
     color: "white",
@@ -374,13 +405,17 @@ function Features() {
             {userFiles?.map((file) => {
               return (
                 <>
-                  <Button variant="contained" onClick={() => window.open(CDNURL + user.id + '/' + file.name, '_blank')}>
+                  <Button variant="contained" onClick={() => 
+                              { setAr([]);
+                                setAxis([]);
+                                setStackedV([]);
+                                filesButton(CDNURL + user.id + '/' + file.name, file.name)}}>
                     {file.name}
                   </Button>
                   <Button color="secondary" onClick={() => deleteFile(file.name)}>
                     Delete File
                   </Button>
-                </>
+                  </>
               )
             })}
           </Row>
@@ -392,7 +427,7 @@ function Features() {
           <input
             type="file"
             accept=".xlsx, .xls"
-            onChange={handleFileUpload}
+            onChange={usingUpload}
             style={{ display: 'block', marginLeft: 'auto', marginRight: 'auto' }}
           />
         </div>
