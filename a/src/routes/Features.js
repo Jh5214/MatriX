@@ -7,7 +7,9 @@ import { Link } from "react-router-dom";
 import { TransferDataContext } from './context';
 import { useUser, useSupabaseClient} from "@supabase/auth-helpers-react";
 import {Row, Col} from 'react-bootstrap';
-import { Button } from "@mui/material";
+import { Button, IconButton } from "@mui/material";
+import { CloudUpload, BarChart } from "@mui/icons-material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const supabase = createClient("https://jedendeblvtzvmbtgmsv.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplZGVuZGVibHZ0enZtYnRnbXN2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTY4NDgyNjIyOSwiZXhwIjoyMDAwNDAyMjI5fQ.B22JM-wZyJlj2Brtx7keClIgkFE_Y_-4SXeQnAp6HGE"
@@ -41,8 +43,7 @@ function Features() {
 
   const user = useUser();
   const CDNURL = "https://jedendeblvtzvmbtgmsv.supabase.co/storage/v1/object/public/excel/";
-  const [downloadedFile, setDownloadedFile] = useState(null);
-
+  
   const no = [];
   const removeL = [];
   const removeBasic = [];
@@ -143,13 +144,6 @@ function Features() {
         getPrevFile();
       }
     }, [userFiles]);
-
-
-    useEffect(() => {
-      if (downloadedFile) {
-        console.log("New File downloaded :", downloadedFile);
-      }
-  }, [downloadedFile]);
 
   const handleUpload = async () => {
     if (data.length > 0) {
@@ -318,18 +312,50 @@ function Features() {
       }
   }
 
-  const filesButton = async ( url, fileN ) => {
-    window.open(url, '_blank');
-    const { data: filedata, error } = await supabase.storage
-      .from("excel")
-      .download(user?.id + "/" + fileN)
+  const buttonStyle = {
+    backgroundColor: "#4CAF50",
+    color: "white",
+    margin: "5px",
+    padding: "10px 20px",
+    border: "none",
+    borderRadius: "5px",
+    cursor: "pointer",
+    textDecoration: "none",
+    fontSize: "16px",
+  };
 
-      if (error) {
-        console.error("Error downloading file:", error);
-      } else {
-        setDownloadedFile(data); // Store the downloaded file in state
-      }
-  }
+  const uploadButtonStyle = {
+    backgroundColor: "#1976D2",
+    color: "white",
+    margin: "5px",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    textDecoration: "none",
+    fontSize: "16px",
+  };
+
+  const backButtonStyle = {
+    backgroundColor: "#1976D2",
+    color: "white",
+    margin: "5px",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    textDecoration: "none",
+    fontSize: "16px",
+  };
+
+  const updateButtonStyle = {
+    backgroundColor: "#1976D2",
+    color: "white",
+    margin: "5px",
+    padding: "10px 20px",
+    borderRadius: "5px",
+    cursor: "pointer",
+    textDecoration: "none",
+    fontSize: "16px",
+  };
   
   return (
     <>
@@ -348,7 +374,7 @@ function Features() {
             {userFiles?.map((file) => {
               return (
                 <>
-                  <Button variant="contained" onClick={() => filesButton(CDNURL + user.id + '/' + file.name, file.name)}>
+                  <Button variant="contained" onClick={() => window.open(CDNURL + user.id + '/' + file.name, '_blank')}>
                     {file.name}
                   </Button>
                   <Button color="secondary" onClick={() => deleteFile(file.name)}>
@@ -404,23 +430,36 @@ function Features() {
               </tbody>
             </table>
             <br />
-            <button onClick={handleFillZeros}>Fill Zeros</button>
-            <button onClick={handleRemoveEmptyRows}>Remove Empty Rows</button>
+            <Button onClick={handleFillZeros} style={buttonStyle} variant="contained">
+              Fill Zeros
+            </Button>
+            <Button onClick={handleRemoveEmptyRows} style={buttonStyle} variant="contained">
+              Remove Empty Rows
+            </Button>
             <br />
             {check ? 
             <></> :
             <>
-            <button onClick={handleUpload}>Upload</button>
-            <button onClick={handleUpdate}>Update</button>
+            <IconButton onClick={handleUpload} style={uploadButtonStyle} aria-label="upload" color="primary">
+              <CloudUpload style={{ color: "black" }} />
+              Upload
+            </IconButton>
+            <Button onClick={handleUpdate} style={updateButtonStyle} variant="contained">
+              Update
+            </Button>
             </>
             }
-            <button onClick={handlePredictFutureData}>Predict Future Data</button>
+            <Button onClick={handlePredictFutureData} style={buttonStyle} variant="contained">
+              Predict Future Data
+            </Button>
             {uploadStatus && <p>{uploadStatus}</p>}
             <br />
-            <button onClick={handleBack}>Back</button>
-            <Link to="/graphs">
-              <button>Get Graph</button>
-            </Link>
+            <Button onClick={handleBack} style={backButtonStyle} variant="contained">
+              Back
+            </Button>
+            <Button component={Link} to="/graphs" style={buttonStyle} variant="contained" startIcon={<BarChart sx={{ color: "black" }} />}>
+              Get Graph
+            </Button>
             <TransferDataContext.Provider
               value={{ setLineDataa, setLabels, setDatas, setTitle }}
             ></TransferDataContext.Provider>
